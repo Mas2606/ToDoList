@@ -8,87 +8,74 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ToDoListGUI extends JFrame {
-
-    private JTextArea textArea;
+    private JPanel panel;
     private JTextField textField;
-  
+    private JButton hinzufuegenButton;
+    private JButton loeschenButton;
     private List<String> tasks;
 
     public ToDoListGUI() {
         setTitle("To-Do-Liste");
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Schließverhalten beim Klicken auf das Schließen-Symbol
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        
-      
-        
-        
-        // Initialisieren der Aufgabenliste
         tasks = new ArrayList<>();
 
-        // Erstellen des Textfelds
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
         textField = new JTextField(40);
-        
-        
-       
+        hinzufuegenButton = new JButton("Hinzufügen");
+        loeschenButton = new JButton("Löschen");
 
-        // Erstellen des Scrollbalken für die Textfläche
-        JScrollPane scrollPane = new JScrollPane(textArea);
-
-        // Erstellen der Schaltflächen (Buttons)
-        JButton hinzufuegenButton = new JButton("Hinzufügen");
-        JButton loeschenButton = new JButton("Löschen");
-
-        // Hinzufügen von ActionListenern zu den Buttons
         hinzufuegenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	// Aktion, die beim Klicken auf die Hinzufügen-Schaltfläche ausgeführt wird
-                String task = textField.getText();
-                if (!task.isEmpty()) {
-                    tasks.add(task); // Hinzufügen der Aufgabe zur Liste
-                    updateTextArea(); // Aktualisieren der Anzeige
-                    textField.setText(""); // Löschen des Textfelds nach dem Hinzufügen
-                }
+                addTask();
             }
         });
 
         loeschenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Aktion, die beim Klicken auf die Löschen-Schaltfläche ausgeführt wird
-                tasks.clear(); // Löschen der Aufgabenliste
-                updateTextArea(); // Aktualisieren der Anzeige
+                deleteTasks();
             }
         });
 
-        
-        // Erstellen der Textfläche
-        textArea = new JTextArea(20, 40);
-        textArea.setEditable(false); // Damit Benutzer die Textfläche nicht bearbeiten können
-       
-        
-        // Hinzufügen der Komponenten zum Rahmen
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Noch zu Tun:"));
-       
-        panel.add(textField);
-       
-        panel.add(hinzufuegenButton);
-        panel.add(loeschenButton);
-        panel.add(textArea);
-        
+        addTask(); // Füge eine leere Aufgabe beim Start hinzu
 
-        getContentPane().add(panel, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(400, 300)); // Setzen Sie die gewünschte Größe
+
+        getContentPane().add(scrollPane, BorderLayout.SOUTH);;
+        getContentPane().add(textField, BorderLayout.NORTH);
+       
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(hinzufuegenButton);
+        buttonPanel.add(loeschenButton);
+        
+        getContentPane().add(buttonPanel, BorderLayout.CENTER);
     }
 
-    // Methode zur Aktualisierung der Anzeige der Aufgabenliste
-    private void updateTextArea() {
-        textArea.setText(""); // Löschen des bisherigen Inhalts der Textfläche
-        for (int i = 0; i < tasks.size(); i++) {
-            String task = tasks.get(i);
-            textArea.append((i + 1) + ". " + task + "\n"); // Nummerierung und Hinzufügen der Aufgaben
+    private void addTask() {
+        String taskText = textField.getText().trim();
+        if (!taskText.isEmpty()) {
+            tasks.add(taskText);
+            JCheckBox checkBox = new JCheckBox(taskText);
+            panel.add(checkBox);
+            textField.setText(""); // Leeres Textfeld
+            validate(); // GUI aktualisieren
+            repaint();
         }
+    }
+
+    private void deleteTasks() {
+        tasks.clear();
+        panel.removeAll();
+        validate(); // GUI aktualisieren
+        repaint();
     }
 
     public static void main(String[] args) {
